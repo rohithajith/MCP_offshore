@@ -18,8 +18,10 @@ import apps.mcp_server.tools.procurement_tools
 try:
     import apps.mcp_server.resources.fleet_resources
     import apps.mcp_server.resources.inventory_resources
-    import apps.mcp_server.resources.maintenance_resources
     import apps.mcp_server.resources.logistics_resources
+    import apps.mcp_server.resources.procurement_resources
+    import apps.mcp_server.resources.maintenance_resources
+    import apps.mcp_server.resources.ops_resources
 except ImportError as e:
     log.warning(f"Failed to load a resource: {e}")
 

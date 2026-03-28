@@ -1,17 +1,14 @@
 import json
 from apps.mcp_server.registry import mcp
 from packages.db.session import SessionLocal
-from packages.db.repositories.maintenance_repo import MaintenanceRepository
+from packages.domain.services.maintenance_service import MaintenanceService
+from shared.observability.decorators import observable_resource
 
-@mcp.resource("maintenance://open_work_orders")
-def get_maintenance_overview() -> str:
-    """Returns a snapshot of all open maintenance tasks globally."""
+@mcp.resource("maintenance://critical_work_orders")
+@observable_resource("maintenance://critical_work_orders")
+def get_critical_work_orders_resource() -> str:
+    """Read-only structured view of critical work orders."""
     with SessionLocal() as db:
-        repo = MaintenanceRepository(db)
-        wos = repo.list_open_work_orders()
-        ret = []
-        for w in wos:
-            ret.append({
-                "id": w.id, "title": w.title, "priority": w.priority, "required_by": str(w.required_by_date)
-            })
-        return json.dumps(ret, indent=2)
+        service = MaintenanceService(db)
+        dto_results = service.list_critical_work_orders()
+        return json.dumps([r.model_dump() for r in dto_results], indent=2)

@@ -13,3 +13,12 @@ class InsufficientStockError(DomainException):
 class InvalidOperationError(DomainException):
     def __init__(self, reason: str):
         super().__init__(f"Invalid Operation: {reason}")
+        
+class DatabaseError(DomainException):
+    pass
+
+class ValidationError(DomainException):
+    pass
+    
+class BusinessRuleViolationError(DomainException):
+    pass

@@ -20,6 +20,7 @@ class Part(Base):
     sku = Column(String, unique=True, nullable=False)
     name = Column(String, nullable=False)
     is_critical_spare = Column(Integer)
+    reorder_point = Column(Integer, default=0)
     
 class InventoryStock(Base):
     __tablename__ = "inventory_stock"

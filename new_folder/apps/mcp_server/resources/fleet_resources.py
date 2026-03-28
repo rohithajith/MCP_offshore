@@ -3,8 +3,10 @@ from apps.mcp_server.registry import mcp
 from packages.db.session import SessionLocal
 from packages.db.repositories.fleet_repo import FleetRepository
 from packages.domain.services.fleet_service import FleetService
+from shared.observability.decorators import observable_resource
 
 @mcp.resource("fleet://overview")
+@observable_resource("fleet://overview")
 def get_fleet_overview() -> str:
     """Returns a snapshot of all active vessels and their coordinates."""
     with SessionLocal() as db:
@@ -19,6 +21,7 @@ def get_fleet_overview() -> str:
         return json.dumps(ret, indent=2)
 
 @mcp.resource("fleet://active_voyages")
+@observable_resource("fleet://active_voyages")
 def get_active_voyages_resource() -> str:
     """Expose the list of active voyages detailing progress and status."""
     with SessionLocal() as db:

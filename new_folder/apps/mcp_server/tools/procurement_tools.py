@@ -4,8 +4,10 @@ from apps.mcp_server.registry import mcp
 from packages.db.session import SessionLocal
 from packages.domain.services.procurement_service import ProcurementService
 from packages.domain.exceptions.core_exceptions import DomainException
+from shared.observability.decorators import observable_action
 
 @mcp.tool()
+@observable_action("find_alternate_supplier", category="read")
 def find_alternate_supplier(part_id: str, region: Optional[str] = None) -> str:
     """Find alternate suppliers for a given part_id, ranked natively by lead time and cost."""
     with SessionLocal() as db:
@@ -17,6 +19,7 @@ def find_alternate_supplier(part_id: str, region: Optional[str] = None) -> str:
             return json.dumps({"status": "error", "message": str(e)})
 
 @mcp.tool()
+@observable_action("get_purchase_order_status", category="read")
 def get_purchase_order_status(po_id: str) -> str:
     """Get the operational tracking status of a specific Purchase Order."""
     with SessionLocal() as db:
@@ -24,5 +27,17 @@ def get_purchase_order_status(po_id: str) -> str:
             service = ProcurementService(db)
             dto_result = service.get_purchase_order_status(po_id)
             return json.dumps({"status": "success", "data": dto_result.model_dump()})
+        except DomainException as e:
+            return json.dumps({"status": "error", "message": str(e)})
+
+@mcp.tool()
+@observable_action("get_open_purchase_orders", category="read")
+def get_open_purchase_orders(priority: Optional[str] = None, supplier_id: Optional[str] = None) -> str:
+    """Return open purchase orders with operational risk context."""
+    with SessionLocal() as db:
+        try:
+            service = ProcurementService(db)
+            dto_results = service.get_open_purchase_orders(priority, supplier_id)
+            return json.dumps({"status": "success", "data": [r.model_dump() for r in dto_results]})
         except DomainException as e:
             return json.dumps({"status": "error", "message": str(e)})

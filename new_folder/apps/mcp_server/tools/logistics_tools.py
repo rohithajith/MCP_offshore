@@ -4,8 +4,10 @@ from apps.mcp_server.registry import mcp
 from packages.db.session import SessionLocal
 from packages.domain.services.logistics_service import LogisticsService
 from packages.domain.exceptions.core_exceptions import DomainException
+from shared.observability.decorators import observable_action
 
 @mcp.tool()
+@observable_action("trace_shipment", category="read")
 def trace_shipment(shipment_id: str) -> str:
     """Trace a shipment including voyage legs and customs holds."""
     with SessionLocal() as db:
@@ -17,6 +19,7 @@ def trace_shipment(shipment_id: str) -> str:
             return json.dumps({"status": "error", "message": str(e)})
 
 @mcp.tool()
+@observable_action("list_delayed_shipments", category="read")
 def list_delayed_shipments(severity: Optional[str] = None) -> str:
     """Return delayed shipments, optionally filtered by severity."""
     with SessionLocal() as db:
